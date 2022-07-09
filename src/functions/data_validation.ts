@@ -1,7 +1,7 @@
 import { ICsvData } from '../interfaces/ICsvData'
 
 const data_validation_commissioning_report = (data: ICsvData) => {
-  data['Date'] = 'x'
+  data['Date'] = data['Date'] ? data['Date'].split(' ')[0] : undefined // 2022-05-15 00:00:00 to 2022-05-15
   data['Device ID'] = check_length(data['Device ID'], 16)
   data['Device Model'] = check_length(data['Device Model'], 40)
   data['Device Type'] = check_length(data['Device Type'], 40)
@@ -62,11 +62,11 @@ const data_validation_commissioning_report = (data: ICsvData) => {
   return data
 }
 
-const check_length = (x: string, l: number) => {
+const check_length = (x: string, l: number): string | undefined => {
   if (x)
-    if (x.length > l) return ''
-    else return x
-  else return x
+    if (x.trim().length > l) return undefined
+    else return x.trim()
+  else return undefined
 }
 
 export { data_validation_commissioning_report }
