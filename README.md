@@ -1,1 +1,1 @@
-# typescript-backend-sample
+# hexing-azure-sql
