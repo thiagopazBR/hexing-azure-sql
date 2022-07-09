@@ -11,15 +11,15 @@ const target_path = '/workspaces/hexing-azure-sql/files' // Dir where is commiss
 
 const csv_file_path = path.join(
   target_path,
-  '2022-06-07_commissioning_report.csv'
+  '2022-06-08_commissioning_report.csv'
 )
 
 const mssql = new Mssql()
 
 ;(async () => {
   await mssql.init()
-  // let r = await mssql.select()
-  // r.recordset.forEach(v => console.log(v))
+  const r = await mssql.select()
+  r.recordset.forEach(v => console.log(v))
 
   const csv_content = await read_csv(csv_file_path)
   let i = csv_content.length
