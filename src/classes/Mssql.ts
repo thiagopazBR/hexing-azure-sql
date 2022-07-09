@@ -34,17 +34,12 @@ export class Mssql {
     }
   }
 
-  public async select(query?: string) {
-    query = `SELECT table_name, table_schema
-      FROM information_schema.tables
-      WHERE table_type = 'BASE TABLE'
-      ORDER BY table_name ASC
-    `
+  public async select(query: string) {
     try {
       const result = await this.connection.query(query)
       return Promise.resolve(result)
     } catch (error) {
-      console.error('Connection failed: ' + error)
+      console.error('Query failed: ' + error.toString())
       process.exit()
     }
   }
