@@ -2,6 +2,7 @@ import { IDate } from '../interfaces/IDate'
 
 export const commissioning_report = (date: IDate) => {
   let table_name = 'COPEL_COMMISSIONING_REPORT_'
+
   table_name += date.replace(/-/g, '') // 2022-05-15 to 20220515
 
   const output = `CREATE TABLE ${table_name} (
