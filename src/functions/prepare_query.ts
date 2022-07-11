@@ -1,7 +1,6 @@
 import { ICsvData } from '../interfaces/ICsvData'
-import { IDate } from '../interfaces/IDate'
 
-const prepare_query = (date: IDate, data: ICsvData): string => {
+const prepare_query = (date: string, data: ICsvData): string => {
   let table_name = 'COPEL_COMMISSIONING_REPORT_'
   table_name += date.replace(/-/g, '') // 2022-05-15 to 20220515
 
