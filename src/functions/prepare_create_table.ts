@@ -1,8 +1,12 @@
-import { IDate } from '../interfaces/IDate'
+// eslint-disable-next-line  @typescript-eslint/ban-types
+export const prepare_create_table: { [key: string]: Function } = {
+  commissioning_report: (date: string): string => {
+    return commissioning_report(date)
+  }
+}
 
-export const commissioning_report = (date: IDate) => {
+const commissioning_report = (date: string) => {
   let table_name = 'COPEL_COMMISSIONING_REPORT_'
-
   table_name += date.replace(/-/g, '') // 2022-05-15 to 20220515
 
   const output = `CREATE TABLE ${table_name} (
