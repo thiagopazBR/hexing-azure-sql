@@ -1,9 +1,6 @@
 import moment from 'moment'
 
-// type _Date = `${number}${number}${number}${number}-${number}${number}-${number}${number}`
-import { IDate } from '../interfaces/IDate'
-
-export const check_date_format = (d: IDate, date_format = 'YYYY-MM-DD'): boolean => {
+export const check_date_format = (d: string, date_format = 'YYYY-MM-DD'): boolean => {
   if (moment(d, date_format, true).isValid()) return true
   else throw new Error('Error: Incorrect date format. It should be YYYY-MM-DD')
 }
@@ -27,15 +24,15 @@ export const generate_date_range = (
   startDate: string,
   endDate: string,
   date_format = 'YYYY-MM-DD'
-): IDate[] => {
+): string[] => {
   const fromDate = moment(startDate)
   const toDate = moment(endDate)
   const diff = toDate.diff(fromDate, 'days') + 1
 
-  const range: Array<IDate> = []
+  const range: Array<string> = []
 
   for (let i = 0; i < diff; i++) {
-    const d = <IDate>moment(startDate).add(i, 'days').format(date_format)
+    const d = <string>moment(startDate).add(i, 'days').format(date_format)
     range.push(d)
   }
 
