@@ -5,16 +5,21 @@ import * as path from 'path'
 
 import { Mssql } from './classes/Mssql'
 import * as date_validation from './functions/date_validations'
-import * as csv_validation from './functions/csv_validation'
-import * as prepare_create_table from './functions/prepare_create_table'
+import { csv_validation } from './functions/csv_validation'
+import { prepare_create_table } from './functions/prepare_create_table'
 import { read_csv } from './functions/read_csv'
 import { prepare_query } from './functions/prepare_query'
+import { args_validation } from './functions/args_validation'
 
-// const script_dir: string = path.dirname(__filename)
+const args = args_validation(process.argv.slice(2))
+
+/* target_script can be: commissioning_report, alarm_history, ect... */
+const target_script = args.target
+const start_date = args.start_date
+const end_date = args.end_date
+
+/* const script_dir: string = path.dirname(__filename) */
 const target_path = '/workspaces/hexing-azure-sql/files' // Dir where is commissioning_report.csv files
-
-const start_date = '2022-06-01'
-const end_date = '2022-06-06'
 
 date_validation.check_date_format(start_date)
 date_validation.check_date_format(end_date)
@@ -30,6 +35,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
   await mssql.init()
 
   for (const date of date_range) {
+    console.log(date)
     const csv_file_path = path.join(target_path, `${date}_commissioning_report.csv`)
 
     if (!existsSync(csv_file_path)) {
@@ -39,16 +45,16 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 
     const csv_content = await read_csv(csv_file_path)
 
-    const create_table = prepare_create_table['commissioning_report'](date)
+    const create_table = prepare_create_table[target_script](date)
     await mssql.select(create_table)
 
     let i = csv_content.length
     while (i--) {
       let row = csv_content[i]
-      row = csv_validation['commissioning_report'](row)
+      row = csv_validation[target_script](row)
       const query: string = prepare_query(date, row)
       await mssql.select(query)
-      console.log(date, row['Device ID'], i)
+      // console.log(date, row['Device ID'], i)
     }
   }
 })()
