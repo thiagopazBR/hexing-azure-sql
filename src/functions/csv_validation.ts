@@ -1,5 +1,12 @@
 import { ICsvData } from '../interfaces/ICsvData'
 
+// eslint-disable-next-line  @typescript-eslint/ban-types
+export const csv_validation: { [key: string]: Function } = {
+  commissioning_report: (data: ICsvData): ICsvData => {
+    return commissioning_report(data)
+  }
+}
+
 const commissioning_report = (data: ICsvData) => {
   data['Date'] = data['Date'] ? data['Date'].split(' ')[0] : undefined // 2022-05-15 00:00:00 to 2022-05-15
   data['Device ID'] = check_length(data['Device ID'], 16)
@@ -41,5 +48,3 @@ const check_length = (x: string, l: number): string | undefined => {
     else return x.trim()
   else return undefined
 }
-
-export { commissioning_report }
