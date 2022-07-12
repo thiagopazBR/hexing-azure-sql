@@ -8,43 +8,75 @@ export const csv_validation: { [key: string]: Function } = {
 }
 
 const commissioning_report = (data: ICsvData) => {
-  data['Date'] = data['Date'] ? data['Date'].split(' ')[0] : undefined // 2022-05-15 00:00:00 to 2022-05-15
-  data['Device ID'] = check_length(data['Device ID'], 16)
-  data['Device Model'] = check_length(data['Device Model'], 40)
-  data['Device Type'] = check_length(data['Device Type'], 40)
-  data['IP'] = check_length(data['IP'], 150)
-  data['Firmware Version'] = check_length(data['Firmware Version'], 100)
-  data['Meter Version'] = check_length(data['Meter Version'], 100)
-  data['Gateway ID'] = check_length(data['Gateway ID'], 16)
-  data['Gateway IP'] = check_length(data['Gateway IP'], 40)
-  data['Parent'] = check_length(data['Parent'], 16)
-  data['RSSI'] = check_length(data['RSSI'], 16)
-  data['LQI'] = check_length(data['LQI'], 16)
-  data['Device State'] = check_length(data['Device State'], 16)
-  data['Online Rate'] = check_length(data['Online Rate'], 16)
-  data['Total Offline Time'] = check_length(data['Total Offline Time'], 100)
-  data['Registration Time'] = check_length(data['Registration Time'], 16)
-  data['Route Level'] = check_length(data['Route Level'], 16)
-  // data['Last Commmunication Time'] = data['Last Commmunication Time']
-  // data['Last Data Time'] = data['Last Data Time']
-  data['Active energy(+) total [Daily]'] = check_length(data['Active energy(+) total [Daily]'], 40)
-  data['Active energy (+) tariff1 [Daily]'] = check_length(data['Active energy (+) tariff1 [Daily]'], 40)
-  data['Active energy (+) tariff2 [Daily]'] = check_length(data['Active energy (+) tariff2 [Daily]'], 40)
-  data['Active energy (+) tariff3 [Daily]'] = check_length(data['Active energy (+) tariff3 [Daily]'], 40)
-  data['Active energy (+) tariff4 [Daily]'] = check_length(data['Active energy (+) tariff4 [Daily]'], 40)
-  data['Active energy(-) total [Daily]'] = check_length(data['Active energy(-) total [Daily]'], 40)
-  data['Active energy(-) tariff1 [Daily]'] = check_length(data['Active energy(-) tariff1 [Daily]'], 40)
-  data['Active energy(-) tariff2 [Daily]'] = check_length(data['Active energy(-) tariff2 [Daily]'], 40)
-  data['Active energy(-) tariff3 [Daily]'] = check_length(data['Active energy(-) tariff3 [Daily]'], 40)
-  data['Active energy(-)'] = check_length(data['Active energy(-)'], 40)
-  // data['First Communication Time'] = data['First Communication Time']
+  const output: ICsvData = {}
+  output['Date'] = data['Date'] ? data['Date'].split(' ')[0] : undefined // 2022-05-15 00:00:00 to 2022-05-15
+  output['Device ID'] = check_int(data['Device ID']) ? data['Device ID'] : undefined
+  // output['Device Model'] = check_length(data['Device Model'], 40)
+  output['Device Type'] = check_char(data['Device Type'], 5) // AP, Relay or Meter
+  // output['IP'] = check_length(data['IP'], 150)
+  // outpu['Firmware Version'] = check_length(data['Firmware Version'], 100)
+  // output['Meter Version'] = check_length(data['Meter Version'], 100)
+  output['Gateway ID'] = check_int(data['Gateway ID']) ? data['Gateway ID'] : undefined
+  // output['Gateway IP'] = check_length(data['Gateway IP'], 40)
+  output['Parent'] = check_int(data['Parent']) ? data['Parent'] : undefined
+  output['RSSI'] = check_real(data['RSSI'])
+  output['LQI'] = check_tinyint(data['LQI']) ? data['LQI'] : undefined
+  output['Device State'] = check_char(data['Device State'], 7) ? data['Device State'] : undefined
+  output['Online Rate'] = check_real(data['Online Rate'])
+  // output['Total Offline Time'] = check_length(data['Total Offline Time'], 100)
+  output['Registration Time'] = data['Registration Time']
+  output['Route Level'] = check_tinyint(data['Route Level']) ? data['Route Level'] : undefined
+  output['Last Commmunication Time'] = data['Last Commmunication Time']
+  output['Last Data Time'] = data['Last Data Time']
+  // output['Active energy(+) total [Daily]'] = check_length(data['Active energy(+) total [Daily]'], 40)
+  // output['Active energy (+) tariff1 [Daily]'] = check_length(data['Active energy (+) tariff1 [Daily]'], 40)
+  // output['Active energy (+) tariff2 [Daily]'] = check_length(data['Active energy (+) tariff2 [Daily]'], 40)
+  // output['Active energy (+) tariff3 [Daily]'] = check_length(data['Active energy (+) tariff3 [Daily]'], 40)
+  // output['Active energy (+) tariff4 [Daily]'] = check_length(data['Active energy (+) tariff4 [Daily]'], 40)
+  // output['Active energy(-) total [Daily]'] = check_length(data['Active energy(-) total [Daily]'], 40)
+  // output['Active energy(-) tariff1 [Daily]'] = check_length(data['Active energy(-) tariff1 [Daily]'], 40)
+  // output['Active energy(-) tariff2 [Daily]'] = check_length(data['Active energy(-) tariff2 [Daily]'], 40)
+  // output['Active energy(-) tariff3 [Daily]'] = check_length(data['Active energy(-) tariff3 [Daily]'], 40)
+  // output['Active energy(-)'] = check_length(data['Active energy(-)'], 40)
+  // output['First Communication Time'] = data['First Communication Time']
 
-  return data
+  return output
 }
 
-const check_length = (x: string, l: number): string | undefined => {
+// const check_length = (x: string, l: number): string | undefined => {
+//   if (x)
+//     if (x.trim().length > l) return undefined
+//     else return x.trim()
+//   else return undefined
+// }
+
+const check_char = (x: string, l: number): string | undefined => {
   if (x)
     if (x.trim().length > l) return undefined
     else return x.trim()
   else return undefined
+}
+
+const check_int = (data: string): boolean => {
+  if (!data.match(/^[0-9]+$/)) return false
+  const int: number = parseInt(data)
+
+  if (int < -2147483648 || int > 2147483647) return false
+  return true
+}
+
+const check_real = (data: string): string | undefined => {
+  // Remove % sign of online rate and anythin less number, dash and dot
+  const real = data.replace(/[^0-9.-]+/g, '')
+
+  if (real.match(/^-?(0|[1-9]\d*)(\.\d+)?$/)) return real
+  return undefined
+}
+
+const check_tinyint = (data: string): boolean => {
+  if (!data.match(/^[0-9]+$/)) return false
+  const tinyint: number = parseInt(data)
+
+  if (tinyint > -1 && tinyint < 256) return true
+  return false
 }
