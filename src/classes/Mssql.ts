@@ -34,14 +34,26 @@ export class Mssql {
     }
   }
 
-  public async select(query: string) {
-    try {
-      const result = await this.connection.query(query)
-      return Promise.resolve(result)
-    } catch (error) {
-      console.error('Query failed: ' + error.toString())
-      process.exit()
-    }
+  public async query(query: string) {
+    const retries = 3
+    let i = 1
+    let success = false
+
+    let result: mssql.IResult<any>
+
+    while (i <= retries)
+      try {
+        result = await this.connection.query(query)
+        success = true
+        break
+      } catch (error) {
+        result = error
+        i = i + 1
+      }
+
+    if (success) return Promise.resolve(result)
+    else throw new Error(result.toString())
+    // else return Promise.reject(result)
   }
 
   // public async get_AZURE_data(): Promise<IAZUREDataResponse> {
