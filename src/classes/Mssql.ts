@@ -39,7 +39,7 @@ export class Mssql {
     let i = 1
     let success = false
 
-    let result: mssql.IResult<any>
+    let result: mssql.IResult<object>
 
     while (i <= retries)
       try {
