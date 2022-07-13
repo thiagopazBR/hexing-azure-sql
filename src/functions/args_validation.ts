@@ -17,7 +17,7 @@ const check_args = (args: string[]): IArgs | Promise<IArgs> => {
       },
       target: {
         alias: 't',
-        choices: ['commissioning_report', 'alert_history', 'tou'] as const,
+        choices: ['commissioning_report', 'success_reading_rate_tou'] as const,
         demandOption: true,
         describe: '',
         type: 'string'
