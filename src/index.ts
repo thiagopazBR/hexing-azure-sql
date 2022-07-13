@@ -49,7 +49,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     if (0 > 1) {
       // Yes, I know. I'm forcing to ignorer it
       const create_table = prepare_create_table[target_script](date)
-      await mssql.select(create_table)
+      await mssql.query(create_table)
     }
 
     const device_ids: { [key: string]: boolean } = {}
@@ -66,7 +66,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
       }
       row = csv_validation[target_script](row)
       const query: string = prepare_query(date, row)
-      await mssql.select(query)
+      await mssql.query(query)
       // console.log(date, row['Device ID'], i)
     }
   }
@@ -77,12 +77,12 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 const check_device_id = (device_id: string): string => {
   if (!device_id.match(/^[0-9]+$/)) return 'error'
 
-  if (device_id.length < 8) return 'error'
-
   const d: number = parseInt(device_id)
   if (d < -2147483648 || d > 2147483647) return 'error'
 
   if (device_id.startsWith('0000')) while (device_id.charAt(0) === '0') device_id = device_id.slice(1)
+
+  if (device_id.length < 8) return 'error'
 
   return device_id
 }
