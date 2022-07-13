@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import 'dotenv/config'
 
-import * as path from 'path'
+import path from 'path'
 
 import { Mssql } from './classes/Mssql'
 import * as date_validation from './functions/date_validations'
@@ -58,14 +58,20 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     while (i--) {
       let row = csv_content[i]
 
-      if (target_script == 'commissioning_report') {
-        const output_device_id: string = check_device_id(row['Device ID'])
+      if (target_script in ['commissioning_report', 'success_reading_rate_tou']) {
+        let _device_id: string
+
+        if (target_script == 'commissioning_report') _device_id = row['Device ID']
+        else if (target_script == 'success_reading_rate_tou') _device_id = row['METER_ID']
+
+        const output_device_id: string = check_device_id(_device_id)
         if (output_device_id == 'error') continue
         if (device_ids[output_device_id] !== undefined) continue
         device_ids[output_device_id] = true
       }
+
       row = csv_validation[target_script](row)
-      const query: string = prepare_query(date, row)
+      const query: string = prepare_query[target_script](row)
       await mssql.query(query)
       // console.log(date, row['Device ID'], i)
     }
