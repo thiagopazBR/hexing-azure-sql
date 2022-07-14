@@ -1,8 +1,6 @@
 import { existsSync } from 'fs'
 import 'dotenv/config'
 
-import path from 'path'
-
 import { Mssql } from './classes/Mssql'
 import * as date_validation from './functions/date_validations'
 import { csv_validation } from './functions/csv_validation'
@@ -10,6 +8,7 @@ import { prepare_create_table } from './functions/prepare_create_table'
 import { read_csv } from './functions/read_csv'
 import { prepare_query } from './functions/prepare_query'
 import { args_validation } from './functions/args_validation'
+import { get_filename } from './functions/get_filename'
 
 const args = args_validation(process.argv.slice(2))
 
@@ -19,7 +18,7 @@ const start_date = args.start_date
 const end_date = args.end_date
 
 /* const script_dir: string = path.dirname(__filename) */
-const target_path = '/workspaces/hexing-azure-sql/files' // Dir where is commissioning_report.csv files
+const files_path = '/workspaces/hexing-azure-sql/files' // Dir where is commissioning_report.csv files
 
 date_validation.check_date_format(start_date)
 date_validation.check_date_format(end_date)
@@ -36,7 +35,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 
   for (const date of date_range) {
     console.log(date)
-    const csv_file_path = path.join(target_path, `${date}_${target_script}.csv`)
+    const csv_file_path = get_filename(date, target_script, files_path)
 
     if (!existsSync(csv_file_path)) {
       console.log(`${date}_${target_script}.csv file does not exists`)
