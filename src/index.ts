@@ -1,6 +1,6 @@
 import { existsSync } from 'fs'
 import 'dotenv/config'
-
+import { join } from 'path'
 import { Mssql } from './classes/Mssql'
 import * as date_validation from './functions/date_validations'
 import { csv_validation } from './functions/csv_validation'
@@ -29,8 +29,8 @@ const target_script = args.target
 const start_date = args.start_date
 const end_date = args.end_date
 
-/* const script_dir: string = path.dirname(__filename) */
-const files_path = '/workspaces/hexing-azure-sql/files' // Dir where is commissioning_report.csv files
+/* const files_path: string = path.dirname(__filename) */
+const files_path = join(__dirname, '/files') // Dir where is commissioning_report.csv files
 
 date_validation.check_date_format(start_date)
 date_validation.check_date_format(end_date)
