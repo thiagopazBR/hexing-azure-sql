@@ -11,7 +11,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 ENV NODE_ENV=development
-RUN npm i -g npm@latest \
+RUN npm i --location=global npm@latest \
   && npm config set unsafe-perm true \
   && npm install
 
@@ -26,12 +26,13 @@ FROM node:lts-slim
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update -y \
-  && apt-get install -y tzdata
+RUN apt-get update -y
+RUN apt-get install -y tzdata
 
 ENV TZ=America/Sao_Paulo
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-  && echo $TZ > /etc/timezone \
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+RUN echo $TZ > /etc/timezone
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -40,9 +41,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 ENV NODE_ENV=production
-RUN npm i -g npm@latest \
-  && npm install --production
+RUN npm i --location=global npm@latest
+RUN npm install --omit=dev
 
 COPY --from=builder /usr/src/app/build ./build
+COPY .env.sample ./build/.env
 
 CMD [ "node", "build/index.js" ]
