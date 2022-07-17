@@ -15,7 +15,7 @@ docker build -t hexing-azure-sql .
 docker run -it --rm \
 -v log/:log/ \
 -v /usr/share/zabbix/modules/files/content/:files/ \
-hexing-azure-sql:36 \
+hexing-azure-sql \
 build/index.js \
 --target "commissioning_report" \
 --start_date 2022-07-30 \
