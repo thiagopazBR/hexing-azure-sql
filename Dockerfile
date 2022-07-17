@@ -1,5 +1,9 @@
 FROM node:16-alpine as base
 
+RUN apk add --no-cache tzdata
+ENV TZ=America/Sao_Paulo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 WORKDIR /usr/src/app
 COPY package.json package-lock.json /usr/src/app/
 COPY . /usr/src/app
