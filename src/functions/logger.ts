@@ -1,4 +1,3 @@
-import { join } from 'path'
 import { execSync } from 'child_process'
 import { strict as assert } from 'assert'
 import { createLogger, format, transports } from 'winston'
@@ -13,7 +12,7 @@ const logger = createLogger({
   transports: [
     new transports.Console(),
     new transports.File({
-      filename: join(process.env.LOG_DIR, process.env.LOG_FILE_NAME),
+      filename: 'logger.log',
       format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         format.align(),
@@ -24,15 +23,5 @@ const logger = createLogger({
     })
   ]
 })
-
-// const add_logger_console = (logger_: Logger): void => {
-//   if (process.env.NODE_ENV === 'production') return
-
-//   logger_.add(
-//     new transports.Console({
-//       format: format.simple()
-//     })
-//   )
-// }
 
 export { logger }
