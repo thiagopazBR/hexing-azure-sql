@@ -1,28 +1,43 @@
-FROM node:16-alpine as base
+########################################################################
+# First Stage buider                                                   #
+# for dev, please run: docker build --target=builder -t backend-dev:v1 # 
+########################################################################
+FROM node:lts as builder
 
-RUN apk add --no-cache tzdata
-ENV TZ=America/Sao_Paulo
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
+# Create app directory
 WORKDIR /usr/src/app
-COPY package.json package-lock.json /usr/src/app/
-COPY . /usr/src/app
 
-FROM base as production
-# docker build . -t backend-prod:v1 --target=production
-# docker run --name backend-prod -d -t backend-prod:v1
-
-ENV NODE_ENV=production
-RUN npm install --production
-
-CMD ["npm", "start"]
-
-
-FROM base as dev
-# docker build . -t backend-dev:v1 --target=dev
-# docker run --name backend-dev -d -t backend-dev:v1
+# Install app dependencies
+COPY package*.json ./
 
 ENV NODE_ENV=development
 RUN npm config set unsafe-perm true
 RUN npm install
-CMD ["npm", "run", "dev"]
+
+COPY . .
+
+RUN npm run build
+
+#############################################################
+# Second Stage buider                                       #
+#############################################################
+FROM node:lts-slim
+
+ENV TZ=America/Sao_Paulo
+RUN apk add --no-cache tzdata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && echo $TZ > /etc/timezone \
+  && apk del tzdata
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies
+COPY package*.json ./
+
+ENV NODE_ENV=production
+RUN npm install --production
+
+COPY --from=builder /usr/src/app/build ./build
+
+CMD [ "node", "build/index.js" ]
