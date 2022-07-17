@@ -1,5 +1,6 @@
 import { strict as assert } from 'assert'
 import * as mssql from 'mssql'
+import { Logger } from 'winston'
 
 assert(process.env.AZURE_DB_HOST, 'AZURE_DB_HOST is invalid or undefined')
 assert(process.env.AZURE_DB_NAME, 'AZURE_DB_NAME is invalid or undefined')
@@ -25,16 +26,16 @@ const config = {
 export class Mssql {
   connection: mssql.ConnectionPool
 
-  async init(): Promise<void> {
+  async init(date: string, target_script: string, logger: Logger): Promise<void> {
     try {
       this.connection = await mssql.connect(config)
     } catch (err) {
-      console.error('Connection failed: ' + err)
-      process.exit()
+      logger.error(`MSSQL - ${target_script} - ${date} ${err}`)
+      process.exit(1)
     }
   }
 
-  public async query(query: string) {
+  public async query(query: string, start_date: string, target_script: string, logger: Logger) {
     const retries = 3
     let i = 1
     let success = false
@@ -49,39 +50,12 @@ export class Mssql {
       } catch (error) {
         result = error
         i = i + 1
+        await new Promise(resolve => setTimeout(resolve, 60000)) // sleep
       }
 
     if (success) return Promise.resolve(result)
-    else throw new Error(result.toString())
-    // else return Promise.reject(result)
+
+    logger.error(`MSSQL - ${target_script} - ${start_date} ${result.toString()}`)
+    process.exit(1)
   }
-
-  // public async get_AZURE_data(): Promise<IAZUREDataResponse> {
-  //   const query = `
-  //     SELECT
-  //       p.serial,
-  //       p.name as peripheral,
-  //       pl.idrelayfield as idrelay
-  //     FROM
-  //       AZURE_peripherals as p
-  //     LEFT JOIN
-  //       AZURE_plugin_fields_peripheraldeviceconfigurations as pl ON pl.items_id = p.id
-  //     WHERE
-  //       p.is_deleted != 1
-  //       AND p.peripheraltypes_id = '3';`
-
-  //   const result = await this.select(query)
-  //   const output: IAZUREDataResponse = {}
-
-  //   for (const r of result.data)
-  //     if (r.serial) {
-  //       const relay_serial = r.serial
-  //       const relay_name = r.peripheral
-  //       const id_relay = r.idrelay ? r.idrelay : relay_serial
-
-  //       output[relay_serial] = { id_relay: id_relay, name: relay_name }
-  //     }
-
-  //   return Promise.resolve(output)
-  // }
 }

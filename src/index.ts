@@ -9,6 +9,18 @@ import { read_csv } from './functions/read_csv'
 import { prepare_query } from './functions/prepare_query'
 import { args_validation } from './functions/args_validation'
 import { get_filename } from './functions/get_filename'
+import { logger } from './functions/logger'
+
+process.on('uncaughtException', err => {
+  if (err.stack !== undefined) logger.error(err.stack)
+  else logger.error(`${err.name}: ${err.message}`)
+  process.exit(1)
+})
+// .on('unhandledRejection', (reason, p) => {
+//   console.log('p')
+//   logger.error(`${reason.toString()} ${p}`)
+//   process.exit(1)
+// })
 
 const args = args_validation(process.argv.slice(2))
 
@@ -31,14 +43,14 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 
 ;(async () => {
   const mssql = new Mssql()
-  await mssql.init()
+  await mssql.init(start_date, target_script, logger)
 
   for (const date of date_range) {
     console.log(date)
     const csv_file_path = get_filename(date, target_script, files_path)
 
     if (!existsSync(csv_file_path)) {
-      console.log(`${date}_${target_script}.csv file does not exists`)
+      logger.error(`index.ts - ${target_script} - ${date}_${target_script}.csv file does not exists}`)
       continue
     }
 
@@ -48,14 +60,14 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     if (0 > 1) {
       // Yes, I know. I'm forcing to ignorer it
       const create_table = prepare_create_table[target_script](date)
-      await mssql.query(create_table)
+      await mssql.query(create_table, date, target_script, logger)
     }
 
     const device_ids: { [key: string]: boolean } = {}
 
     let i = csv_content.length
     while (i--) {
-      let row = csv_content[i]
+      const row = csv_content[i]
 
       if (target_script in ['commissioning_report', 'success_reading_rate_tou']) {
         let _device_id: string
@@ -69,9 +81,14 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
         device_ids[output_device_id] = true
       }
 
-      row = csv_validation[target_script](row)
-      const query: string = prepare_query[target_script](row)
-      await mssql.query(query)
+      const [row_validated, error] = csv_validation[target_script](row)
+
+      // Checking if has some problems if deviceid or other NOT NULL columns
+      if (error) continue
+      // if (error) { console.log(row); console.log(row_validated); continue }
+
+      const query: string = prepare_query[target_script](row_validated)
+      await mssql.query(query, date, target_script, logger)
       // console.log(date, row['Device ID'], i)
     }
   }
