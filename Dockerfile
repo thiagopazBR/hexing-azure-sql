@@ -1,7 +1,7 @@
-########################################################################
-# First Stage buider                                                   #
-# for dev, please run: docker build --target=builder -t backend-dev:v1 # 
-########################################################################
+##########################################################################
+# First Stage buider                                                     #
+# for dev, please run: docker build --target=builder -t backend-dev:v1 . # 
+##########################################################################
 FROM node:lts as builder
 
 # Create app directory
