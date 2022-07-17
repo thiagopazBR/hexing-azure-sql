@@ -11,8 +11,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 ENV NODE_ENV=development
-RUN npm config set unsafe-perm true
-RUN npm install
+RUN npm i -g npm@latest \
+  && npm config set unsafe-perm true \
+  && npm install
 
 COPY . .
 
@@ -23,11 +24,15 @@ RUN npm run build
 #############################################################
 FROM node:lts-slim
 
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update -y \
+  && apt-get install -y tzdata
+
 ENV TZ=America/Sao_Paulo
-RUN apk add --no-cache tzdata
+
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && echo $TZ > /etc/timezone \
-  && apk del tzdata
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -36,7 +41,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 ENV NODE_ENV=production
-RUN npm install --production
+RUN npm i -g npm@latest \
+  && npm install --production
 
 COPY --from=builder /usr/src/app/build ./build
 
