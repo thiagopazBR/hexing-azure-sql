@@ -50,7 +50,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     const csv_file_path = get_filename(date, target_script, files_path)
 
     if (!existsSync(csv_file_path)) {
-      logger.error(`index.ts - ${target_script} - ${date}_${target_script}.csv file does not exists}`)
+      logger.error(`index.ts - ${target_script} - ${date}_${target_script}.csv file does not exists`)
       continue
     }
 
