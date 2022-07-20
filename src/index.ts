@@ -68,7 +68,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     while (i--) {
       const row = csv_content[i]
 
-      if (target_script in ['commissioning_report', 'success_reading_rate_tou']) {
+      if (target_script == 'commissioning_report' || target_script == 'success_reading_rate_tou') {
         let _device_id: string
 
         if (target_script == 'commissioning_report') _device_id = row['Device ID']
