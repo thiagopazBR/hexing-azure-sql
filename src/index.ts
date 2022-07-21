@@ -24,9 +24,9 @@ const end_date = args.end_date !== undefined ? args.end_date : start_date
 /* const files_path: string = path.dirname(__filename) */
 const files_path = '/files' // Dir where is commissioning_report.csv files
 
-date_validation.check_date_format(start_date)
-date_validation.check_date_format(end_date)
-date_validation.check_if_date_is_greater_than(start_date, end_date)
+date_validation.check_date_format(start_date, target_script, logger)
+date_validation.check_date_format(end_date, target_script, logger)
+date_validation.check_if_date_is_greater_than(start_date, end_date, target_script, logger)
 
 /*
  * ['2022-01-01', '2022-01-02', '2022-01-03', '2022-01-04', ...]
@@ -50,7 +50,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
     const table_for_bulk = prepare_bulk[target_script](csv_content)
 
     await mssql.bulk(table_for_bulk, date)
-
-    mssql.close()
   }
+
+  mssql.close()
 })()

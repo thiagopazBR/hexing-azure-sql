@@ -1,19 +1,32 @@
 import moment from 'moment'
+import { Logger } from 'winston'
 
-export const check_date_format = (d: string, date_format = 'YYYY-MM-DD'): boolean => {
-  if (moment(d, date_format, true).isValid()) return true
-  else throw new Error('Error: Incorrect date format. It should be YYYY-MM-DD')
+export const check_date_format = (
+  d: string,
+  target_script: string,
+  logger: Logger,
+  date_format = 'YYYY-MM-DD'
+): void => {
+  if (!moment(d, date_format, true).isValid()) {
+    logger.error(`${target_script} - Incorrect date format. It should be ${date_format}. Given: ${d}`)
+    process.exit(1)
+  }
 }
 
-export const check_if_date_is_greater_than = (d1: string, d2: string): boolean => {
+export const check_if_date_is_greater_than = (
+  d1: string,
+  d2: string,
+  target_script: string,
+  logger: Logger
+): void => {
   const _diff = moment(d2).diff(moment(d1), 'days')
 
-  if (_diff >= 0) return true
-  else throw new Error('Error: Start date cannot be greater than end date')
-}
-
-export const change_date_format = (d: string, date_format = 'YYYY-MM-DD'): string => {
-  return moment(d).format(date_format)
+  if (_diff < 0) {
+    logger.error(
+      `${target_script} - Start date cannot be greater than end date. Given: start_date=${d1}, end_date=${d2}`
+    )
+    process.exit(1)
+  }
 }
 
 /**
