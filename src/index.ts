@@ -42,7 +42,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
       SELECT TOP 1 DATE_ 
       FROM ${process.env.CUSTOMER}_${target_script.toUpperCase()}
       WHERE DATE_ = '${date}'
-    `)
+    `, date)
 
     if (check_if_it_has_records_this_day['recordset'].length == 0) {
       let msg = `index.ts - ${target_script} - It has already records for day ${date} on `
