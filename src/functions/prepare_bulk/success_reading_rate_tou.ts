@@ -6,7 +6,7 @@ import { check_device_id } from './check_device_id'
 // 40197
 
 export const success_reading_rate_tou = (csv_content: ICsvData[]): Table => {
-  const table: Table = new Table('Persons')
+  const table: Table = new Table('COPEL_SUCCESS_READING_RATE_TOU')
 
   table.columns.add('DATE_', Date)
   table.columns.add('DEVICE_ID', Int, { nullable: false })

@@ -10,7 +10,7 @@ import { Table, Int, Date, Real, Char, TinyInt, SmallDateTime } from 'mssql'
 import { check_device_id } from './check_device_id'
 
 export const commissioning_report = (csv_content: ICsvData[]): Table => {
-  const table = new Table('Persons2')
+  const table = new Table('COPEL_COMMISSIONING_REPORT')
 
   table.columns.add('DATE_', Date)
   table.columns.add('DEVICE_ID', Int, { nullable: false })

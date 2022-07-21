@@ -22,7 +22,7 @@ const start_date = args.start_date
 const end_date = args.end_date !== undefined ? args.end_date : start_date
 
 /* const files_path: string = path.dirname(__filename) */
-const files_path = '/workspaces/hexing-azure-sql/files' // Dir where is commissioning_report.csv files
+const files_path = '/files' // Dir where is commissioning_report.csv files
 
 date_validation.check_date_format(start_date)
 date_validation.check_date_format(end_date)
