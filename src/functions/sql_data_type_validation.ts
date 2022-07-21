@@ -40,8 +40,9 @@ const check_tinyint = (data: string): string | undefined => {
   return undefined
 }
 
-const small_datetime = (data: string, date_format = 'YYYY-MM-DD'): string | undefined => {
+const small_datetime = (data: string): string | undefined => {
   if (!data) return undefined
+  const date_format = 'YYYY-MM-DD hh:mm:ss'
   if (!moment(data, date_format, true).isValid()) return undefined
 
   return data.trim()
