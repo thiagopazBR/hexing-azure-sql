@@ -88,7 +88,7 @@ export class Mssql {
   }
 
   private validate_env_variables(env_var_name: string, env_var: string | undefined) {
-    if (typeof env_var != 'string') {
+    if (!env_var || typeof env_var != 'string') {
       this.logger.error(
         `MSSQL - ${this.target_script} - ${env_var_name} env variabe is invalid or undefined`
       )
