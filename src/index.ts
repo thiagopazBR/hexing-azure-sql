@@ -38,6 +38,19 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
   await mssql.init(target_script, logger)
 
   for (const date of date_range) {
+    let check_if_it_has_records_this_day = await mssql.query(`
+      SELECT TOP 1 DATE_ 
+      FROM ${process.env.CUSTOMER}_${target_script.toUpperCase()}
+      WHERE DATE_ = '${date}'
+    `)
+
+    if (check_if_it_has_records_this_day['recordset'].length == 0) {
+      let msg = `index.ts - ${target_script} - It has already records for day ${date} on `
+      msg += `${process.env.CUSTOMER}_${target_script.toUpperCase()} table.`
+      logger.error(msg)
+      continue
+    }
+ 
     const csv_file_path = get_filename(date, target_script, files_path)
 
     if (!existsSync(csv_file_path)) {
