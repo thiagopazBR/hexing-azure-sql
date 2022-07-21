@@ -1,11 +1,5 @@
-import { strict as assert } from 'assert'
 import * as mssql from 'mssql'
 import { Logger } from 'winston'
-
-assert(process.env.AZURE_DB_HOST, 'AZURE_DB_HOST is invalid or undefined')
-assert(process.env.AZURE_DB_NAME, 'AZURE_DB_NAME is invalid or undefined')
-assert(process.env.AZURE_DB_USER, 'AZURE_DB_USER is invalid or undefined')
-assert(process.env.AZURE_DB_PASS, 'AZURE_DB_PASS is invalid or undefined')
 
 const config = {
   database: process.env.AZURE_DB_NAME,
@@ -27,16 +21,24 @@ const config = {
 export class Mssql {
   connection: mssql.ConnectionPool
 
-  async init(date: string, target_script: string, logger: Logger): Promise<void> {
+  target_script: string
+  logger: Logger
+
+  async init(target_script: string, logger: Logger): Promise<void> {
+    this.target_script = target_script
+    this.logger = logger
+
+    this.check_env_variables()
+
     try {
       this.connection = await mssql.connect(config)
     } catch (err) {
-      logger.error(`MSSQL - ${target_script} - ${date} ${err}`)
+      logger.error(`MSSQL - ${target_script} - ${err}`)
       process.exit(1)
     }
   }
 
-  public async query(query: string, start_date: string, target_script: string, logger: Logger) {
+  public async query(query: string, date: string) {
     const retries = 3
     let i = 1
     let success = false
@@ -56,25 +58,41 @@ export class Mssql {
 
     if (success) return Promise.resolve(result)
 
-    logger.error(`MSSQL - ${target_script} - ${start_date} ${result.toString()}`)
+    this.logger.error(`MSSQL - ${this.target_script} - ${date} ${result.toString()}`)
     process.exit(1)
   }
 
-  public async bulk(table: mssql.Table, start_date: string, target_script: string, logger: Logger) {
+  public async bulk(table: mssql.Table, date: string) {
     const request = new mssql.Request()
     try {
       await request.bulk(table)
-      logger.info(
-        `${target_script} - ${start_date} - ${table.rows.length} rows added to ${target_script} table`
+      this.logger.info(
+        `${this.target_script} - ${date} - ${table.rows.length} rows added to ${this.target_script} table`
       )
       return Promise.resolve(true)
     } catch (error) {
-      logger.error(`MSSQL - ${target_script} - ${start_date} - bulk - ${error.toString()}`)
+      this.logger.error(`MSSQL - ${this.target_script} - ${date} - bulk - ${error.toString()}`)
       return Promise.resolve(false)
     }
   }
 
   public close(): void {
     this.connection.close()
+  }
+
+  private check_env_variables(): void {
+    this.validate_env_variables('AZURE_DB_HOST', process.env.AZURE_DB_HOST)
+    this.validate_env_variables('AZURE_DB_NAME', process.env.AZURE_DB_NAME)
+    this.validate_env_variables('AZURE_DB_USER', process.env.AZURE_DB_USER)
+    this.validate_env_variables('AZURE_DB_PASS', process.env.AZURE_DB_PASS)
+  }
+
+  private validate_env_variables(env_var_name: string, env_var: string | undefined) {
+    if (typeof env_var != 'string') {
+      this.logger.error(
+        `MSSQL - ${this.target_script} - ${env_var_name} env variabe is invalid or undefined`
+      )
+      process.exit(1)
+    }
   }
 }

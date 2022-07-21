@@ -35,7 +35,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 
 ;(async () => {
   const mssql = new Mssql()
-  await mssql.init(start_date, target_script, logger)
+  await mssql.init(target_script, logger)
 
   for (const date of date_range) {
     const csv_file_path = get_filename(date, target_script, files_path)
@@ -49,7 +49,7 @@ const date_range = date_validation.generate_date_range(start_date, end_date)
 
     const table_for_bulk = prepare_bulk[target_script](csv_content)
 
-    await mssql.bulk(table_for_bulk, start_date, target_script, logger)
+    await mssql.bulk(table_for_bulk, date)
 
     mssql.close()
   }
