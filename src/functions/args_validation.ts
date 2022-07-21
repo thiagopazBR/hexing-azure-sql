@@ -1,12 +1,13 @@
 import yargs from 'yargs/yargs'
 import { IArgs } from '../interfaces/IArgs'
+import { Logger } from 'winston'
 
-const check_args = (args: string[]): IArgs | Promise<IArgs> => {
+const check_args = (args: string[], logger: Logger): IArgs | Promise<IArgs> => {
   const argv = yargs(args)
     .options({
       end_date: {
         alias: 'ed',
-        describe: 'Etart Date. Format "YYYY-MM-DD"',
+        describe: 'Start Date. Format "YYYY-MM-DD"',
         type: 'string'
       },
       start_date: {
@@ -23,6 +24,10 @@ const check_args = (args: string[]): IArgs | Promise<IArgs> => {
         type: 'string'
       }
     })
+    .fail(msg => {
+      logger.error(`${msg.toString().replace('\n', '').trim()}`)
+      process.exit(1)
+    })
     .example([
       ['$0 --target "commissioning_report" --start_date "YYYY-MM-DD"', 'For only one day'],
       [
@@ -34,8 +39,8 @@ const check_args = (args: string[]): IArgs | Promise<IArgs> => {
   return argv
 }
 
-const args_validation = (args: string[]) => {
-  const output = check_args(args) as IArgs
+const args_validation = (args: string[], logger: Logger) => {
+  const output = check_args(args, logger) as IArgs
   return output
 }
 

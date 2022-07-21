@@ -14,7 +14,7 @@ process.on('uncaughtException', err => {
   process.exit(1)
 })
 
-const args = args_validation(process.argv.slice(2))
+const args = args_validation(process.argv.slice(2), logger)
 
 /* target_script can be: commissioning_report, success_reading_rate_tou, ect... */
 const target_script = args.target
