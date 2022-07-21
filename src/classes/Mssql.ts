@@ -73,4 +73,8 @@ export class Mssql {
       return Promise.resolve(false)
     }
   }
+
+  public close(): void {
+    this.connection.close()
+  }
 }
