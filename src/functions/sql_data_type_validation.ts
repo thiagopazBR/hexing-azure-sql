@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 const check_int = (data: string): string | undefined => {
   if (!data) return undefined
   if (!data.match(/^[0-9]+$/)) return undefined
@@ -38,4 +40,11 @@ const check_tinyint = (data: string): string | undefined => {
   return undefined
 }
 
-export { check_int, check_char, check_real, check_tinyint }
+const small_datetime = (data: string, date_format = 'YYYY-MM-DD'): string | undefined => {
+  if (!data) return undefined
+  if (!moment(data, date_format, true).isValid()) return undefined
+
+  return data.trim()
+}
+
+export { check_int, check_char, check_real, check_tinyint, small_datetime }

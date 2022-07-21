@@ -19,6 +19,7 @@ const config = {
     max: 10,
     min: 0
   },
+  requestTimeout: 60000,
   server: process.env.AZURE_DB_HOST,
   user: process.env.AZURE_DB_USER
 }
@@ -57,5 +58,19 @@ export class Mssql {
 
     logger.error(`MSSQL - ${target_script} - ${start_date} ${result.toString()}`)
     process.exit(1)
+  }
+
+  public async bulk(table: mssql.Table, start_date: string, target_script: string, logger: Logger) {
+    const request = new mssql.Request()
+    try {
+      await request.bulk(table)
+      logger.info(
+        `${target_script} - ${start_date} - ${table.rows.length} rows added to ${target_script} table`
+      )
+      return Promise.resolve(true)
+    } catch (error) {
+      logger.error(`MSSQL - ${target_script} - ${start_date} - bulk - ${error.toString()}`)
+      return Promise.resolve(false)
+    }
   }
 }
