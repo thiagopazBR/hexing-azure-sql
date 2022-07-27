@@ -13,7 +13,7 @@ const config = {
     max: 10,
     min: 0
   },
-  requestTimeout: 600000,
+  requestTimeout: 1800000,
   server: process.env.AZURE_DB_HOST,
   user: process.env.AZURE_DB_USER
 }
